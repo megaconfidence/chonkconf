@@ -1,6 +1,6 @@
 [project]
 name = "chonkconf"
-version = "1.2.0"
+version = "2.0.0"
 description = "A tiny TOML config loader with computed values. A demo library: don't use it in production."
 readme = "README.md"
 requires-python = ">=3.11"
