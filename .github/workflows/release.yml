@@ -1,0 +1,27 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish a release when the version changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo "v$version is already released"
+            exit 0
+          fi
+          heading=$(grep -m1 "^## $version" CHANGELOG.md || true)
+          awk -v heading="$heading" '$0 == heading { found = 1; next } found && /^## / { exit } found' CHANGELOG.md > notes.md
+          title=${heading#"## "}
+          gh release create "v$version" --target "$GITHUB_SHA" --title "${title:-v$version}" --notes-file notes.md
